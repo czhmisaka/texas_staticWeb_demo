@@ -44,7 +44,7 @@ cd texas_staticWeb_demo
 
 3. 启动游戏
 ```bash
-open index.html  # 或在浏览器中直接打开
+http-server
 ```
 
 ## 🧩 主要模块说明
