@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI德州扑克</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="table">
+            <!-- 公共牌区域 -->
+            <div class="community-cards">
+                <div class="card-placeholder"></div>
+                <div class="card-placeholder"></div>
+                <div class="card-placeholder"></div>
+                <div class="card-placeholder"></div>
+                <div class="card-placeholder"></div>
+            </div>
+
+            <!-- 玩家位置 -->
+            <div class="player-seat player-seat-bottom">
+                <div class="player-info">
+                    <h3>玩家</h3>
+                    <div class="chips">筹码: <span id="player-chips">1000</span></div>
+                </div>
+                <div class="player-cards">
+                    <div class="card player-card-1"></div>
+                    <div class="card player-card-2"></div>
+                </div>
+                <div class="player-bet">下注: <span id="player-bet">0</span></div>
+            </div>
+
+            <!-- AI玩家位置将由JS动态生成 -->
+
+            <!-- 底池 -->
+            <div class="pot-display">
+                底池: <span id="pot-amount">0</span>
+            </div>
+
+            <!-- 游戏阶段和行动指示 -->
+            <div class="game-phase">
+                阶段: <span id="phase-indicator">准备开始</span>
+            </div>
+            <div class="turn-indicator" id="turn-indicator"></div>
+            <div class="player-turn-order" id="player-turn-order"></div>
+        </div>
+
+        <!-- 操作区域 -->
+        <div class="action-panel">
+            <button id="fold-btn">弃牌</button>
+            <button id="call-btn">跟注</button>
+            <div class="fixed-bets">
+                <button id="bet1x-btn" class="bet-btn bet-btn-1x">1倍大盲</button>
+                <button id="bet2x-btn" class="bet-btn bet-btn-2x">2倍大盲</button>
+                <button id="bet3x-btn" class="bet-btn bet-btn-3x">3倍大盲</button>
+                <button id="bet5x-btn" class="bet-btn bet-btn-5x">5倍大盲</button>
+            </div>
+            <div class="raise-control">
+                <button id="raise-btn">加注</button>
+                <input type="number" id="raise-amount" min="20" value="40">
+            </div>
+            <button id="start-btn">开始游戏</button>
+        </div>
+
+        <!-- 游戏消息 -->
+        <div class="game-message" id="game-message"></div>
+    </div>
+
+    <script type="module">
+        import TexasHoldemGame from './game.js';
+
+        const game = new TexasHoldemGame();
+
+        // 初始化UI事件
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('fold-btn').addEventListener('click', () => playerAction('fold'));
+        document.getElementById('call-btn').addEventListener('click', () => playerAction('call'));
+        document.getElementById('raise-btn').addEventListener('click', () => {
+            const amount = parseInt(document.getElementById('raise-amount').value);
+            playerAction('raise', amount);
+        });
+
+        document.getElementById('bet1x-btn').addEventListener('click', () =>
+            playerAction('raise', game.bigBlind * 1));
+        document.getElementById('bet2x-btn').addEventListener('click', () =>
+            playerAction('raise', game.bigBlind * 2));
+        document.getElementById('bet3x-btn').addEventListener('click', () =>
+            playerAction('raise', game.bigBlind * 3));
+        document.getElementById('bet5x-btn').addEventListener('click', () =>
+            playerAction('raise', game.bigBlind * 5));
+
+        function startGame() {
+            game.initGame('玩家');
+            createAIPlayers();
+            updateUI();
+            document.getElementById('start-btn').style.display = 'none';
+            showMessage('游戏开始! 盲注: 小盲10, 大盲20');
+        }
+
+        function createAIPlayers() {
+            const seatPositions = [
+                'top', 'right', 'left', 'bottom-right', 'top-left', 'bottom-left'
+            ];
+
+            const table = document.querySelector('.table');
+
+            // 只创建AI玩家(跳过索引0的真人玩家)
+            for (let i = 1; i < game.players.length; i++) {
+                const player = game.players[i];
+                const seatPos = seatPositions[i - 1];
+
+                const playerSeat = document.createElement('div');
+                playerSeat.className = `player-seat player-seat-${seatPos}`;
+                playerSeat.id = `ai${i}-seat`;
+
+                const playerInfo = document.createElement('div');
+                playerInfo.className = 'player-info';
+
+                const name = document.createElement('h3');
+                name.textContent = player.name;
+
+                const chips = document.createElement('div');
+                chips.className = 'chips';
+                chips.innerHTML = `筹码: <span id="ai${i}-chips">${player.chips}</span>`;
+
+                const feedback = document.createElement('div');
+                feedback.className = 'ai-feedback';
+                feedback.id = `ai${i}-feedback`;
+
+                playerInfo.appendChild(name);
+                playerInfo.appendChild(chips);
+                playerSeat.appendChild(playerInfo);
+                playerSeat.appendChild(feedback);
+                table.appendChild(playerSeat);
+            }
+        }
+
+        function playerAction(action, amount = 0) {
+            game.playerAction(action, amount);
+            updateUI();
+        }
+
+        function updateUI() {
+            // 更新玩家信息
+            document.getElementById('player-chips').textContent = game.players[0].chips;
+            document.getElementById('player-bet').textContent = game.players[0].currentBet;
+
+            // 更新玩家手牌
+            if (!game.players[0].folded && game.players[0].cards) {
+                const card1 = game.players[0].cards[0];
+                const card2 = game.players[0].cards[1];
+                const card1El = document.querySelector('.player-card-1');
+                const card2El = document.querySelector('.player-card-2');
+
+                card1El.textContent = `${getCardSymbol(card1.suit)}${card1.value}`;
+                card1El.className = `card player-card-1 ${card1.suit}`;
+                card2El.textContent = `${getCardSymbol(card2.suit)}${card2.value}`;
+                card2El.className = `card player-card-2 ${card2.suit}`;
+            }
+
+            // 更新AI信息
+            for (let i = 1; i < game.players.length; i++) {
+                const aiElement = document.getElementById(`ai${i}-seat`);
+                if (aiElement) {
+                    document.getElementById(`ai${i}-chips`).textContent = game.players[i].chips;
+                    if (game.players[i].folded) {
+                        document.getElementById(`ai${i}-feedback`).textContent = '🙅‍♂️ 已弃牌';
+                    } else {
+                        document.getElementById(`ai${i}-feedback`).textContent = '';
+                    }
+                }
+            }
+
+            // 更新底池和游戏阶段
+            document.getElementById('pot-amount').textContent = game.pot;
+            document.getElementById('phase-indicator').textContent = getPhaseName(game.gamePhase);
+
+            // 更新公共牌
+            updateCommunityCards();
+        }
+
+        function updateCommunityCards() {
+            const communityCards = document.querySelectorAll('.community-cards .card-placeholder');
+            communityCards.forEach((cardEl, index) => {
+                if (index < game.communityCards.length) {
+                    const card = game.communityCards[index];
+                    cardEl.textContent = `${getCardSymbol(card.suit)}${card.value}`;
+                    cardEl.className = `card-placeholder ${card.suit}`;
+                } else {
+                    cardEl.textContent = '';
+                    cardEl.className = 'card-placeholder';
+                }
+            });
+        }
+
+        function getCardSymbol(suit) {
+            const symbols = {
+                'hearts': '♥️',
+                'diamonds': '♦️',
+                'clubs': '♣️',
+                'spades': '♠️'
+            };
+            return symbols[suit];
+        }
+
+        function getPhaseName(phase) {
+            const phases = {
+                'preflop': '翻牌前',
+                'flop': '翻牌',
+                'turn': '转牌',
+                'river': '河牌',
+                'showdown': '摊牌'
+            };
+            return phases[phase];
+        }
+
+        function showMessage(msg) {
+            const msgEl = document.getElementById('game-message');
+            msgEl.textContent = msg;
+            setTimeout(() => msgEl.textContent = '', 3000);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,504 @@
+/* 基础样式 */
+body {
+    font-family: "Arial", sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.game-container {
+    margin: 0 auto;
+    position: relative;
+}
+
+/* 游戏桌样式 */
+.table {
+    background-color: #2e8b57;
+    border-radius: 400px;
+    width: 1200px;
+    height: 800px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border: 15px solid #8b4513;
+}
+
+/* 公共牌区域 */
+.community-cards {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 10px;
+}
+
+.card-placeholder {
+    width: 80px;
+    height: 120px;
+    background-color: white;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 花色颜色 */
+.hearts,
+.diamonds {
+    color: red;
+}
+
+.clubs,
+.spades {
+    color: black;
+}
+
+/* 玩家位置 */
+.player-seat {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    min-width: 120px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.player-seat.active-player {
+    background-color: rgba(255, 255, 200, 0.95);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+    transform: scale(1.05);
+}
+
+.player-seat.active-player::after {
+    content: "👉";
+    position: absolute;
+    font-size: 24px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+}
+
+.turn-indicator {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    z-index: 10;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.player-turn-order {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.player-turn-order span {
+    transition: all 0.3s ease;
+}
+
+.player-turn-order span.active {
+    color: gold;
+    font-weight: bold;
+    transform: scale(1.2);
+}
+
+.player-seat-bottom {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player-seat-top {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player-seat-right {
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+.player-seat-left {
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+}
+
+.player-seat-bottom-right {
+    bottom: 80px;
+    right: 80px;
+}
+
+.player-seat-top-left {
+    top: 80px;
+    left: 80px;
+}
+
+.player-seat-bottom-left {
+    bottom: 80px;
+    left: 80px;
+}
+
+/* 玩家手牌 */
+.player-cards {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.player-cards .card {
+    width: 60px;
+    height: 90px;
+    background-color: white;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 筹码和下注显示 */
+.chips,
+.player-bet {
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+/* 底池显示 */
+.pot-display {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 18px;
+}
+
+/* 游戏阶段 */
+.game-phase {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+/* AI反馈 */
+.ai-feedback {
+    margin-top: 10px;
+    font-size: 16px;
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    color: #333;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.ai-feedback-animate {
+    animation: aiPulse 0.5s ease-out;
+    transform: scale(1.05);
+}
+
+@keyframes aiPulse {
+    0% {
+        transform: scale(1);
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+    50% {
+        transform: scale(1.1);
+        background-color: rgba(255, 255, 200, 0.95);
+    }
+    100% {
+        transform: scale(1);
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+}
+
+/* 当前玩家高亮 */
+.player-seat.active-player {
+    box-shadow: 0 0 15px gold;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+.player-seat.folded-player {
+    background-color: rgba(30, 30, 30, 0.8);
+    color: #ccc;
+}
+
+.player-seat.folded-player .action-status {
+    background-color: rgba(70, 70, 70, 0.8);
+    color: #ddd;
+}
+
+.player-seat .action-status {
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    min-width: 50px;
+    text-align: center;
+}
+
+.action-status.fold {
+    background-color: #ff6b6b;
+}
+
+.action-status.check {
+    background-color: #4ecdc4;
+}
+
+.action-status.call {
+    background-color: #48cae4;
+}
+
+.action-status.bet {
+    background-color: #ffd166;
+    color: #333;
+}
+
+.action-status.raise {
+    background-color: #ff9e00;
+    color: #333;
+}
+
+.action-status.allin {
+    background-color: #d90429;
+    animation: pulse 0.5s infinite;
+}
+
+/* 行动指示器 */
+.turn-indicator {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
+}
+
+/* 行动顺序显示 */
+.player-turn-order {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.player-turn-order span {
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+}
+
+.player-turn-order span.active {
+    background: #4caf50;
+    font-weight: bold;
+    animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* 操作面板 */
+.action-panel {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* 固定倍数下注按钮容器 */
+.fixed-bets {
+    display: flex;
+    gap: 5px;
+}
+
+/* 固定倍数下注按钮 */
+.bet-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+    font-weight: bold;
+}
+
+.bet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bet-btn-1x {
+    background-color: #48cae4;
+}
+
+.bet-btn-2x {
+    background-color: #00b4d8;
+}
+
+.bet-btn-3x {
+    background-color: #0096c7;
+}
+
+.bet-btn-5x {
+    background-color: #0077b6;
+}
+
+.action-panel button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-panel button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#fold-btn {
+    background-color: #ff6b6b;
+    color: white;
+}
+
+#call-btn {
+    background-color: #4ecdc4;
+    color: white;
+}
+
+#raise-btn {
+    background-color: #ffd166;
+    color: #333;
+}
+
+#start-btn {
+    background-color: #06d6a0;
+    color: white;
+}
+
+.raise-control {
+    display: flex;
+    gap: 5px;
+}
+
+.raise-control input {
+    width: 60px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* 游戏消息 */
+.game-message {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    min-height: 27px;
+}
+
+/* 响应式设计 */
+@media (max-width: 700px) {
+    .table {
+        width: 90vw;
+        height: 90vw;
+    }
+
+    .card-placeholder {
+        width: 12vw;
+        height: 18vw;
+        font-size: 4vw;
+    }
+
+    .player-cards .card {
+        width: 10vw;
+        height: 15vw;
+        font-size: 4vw;
+    }
+
+    .player-seat {
+        min-width: 20vw;
+        font-size: 3vw;
+    }
+}
