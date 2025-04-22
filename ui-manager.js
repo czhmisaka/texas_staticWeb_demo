@@ -168,4 +168,17 @@ export class UIManager {
             potElement.textContent = `底池: ${pot}`;
         }
     }
+
+    clearActionStatus() {
+        // 清除所有玩家的行动状态显示
+        const actionStatusElements = document.querySelectorAll('.action-status');
+        actionStatusElements.forEach(el => {
+            el.className = 'action-status';
+            el.textContent = '';
+        });
+
+        // 清除弃牌状态样式
+        const foldedSeats = document.querySelectorAll('.folded-player');
+        foldedSeats.forEach(seat => seat.classList.remove('folded-player'));
+    }
 }

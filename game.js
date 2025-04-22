@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-22 13:36:49
+ * @LastEditTime: 2025-04-22 14:36:56
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -11,6 +11,16 @@ import { evaluateHand, cardValueToRank, compareHands } from './cards-evaluator.j
 class TexasHoldemGame {
     constructor() {
         this.uiManager = new UIManager(this);
+        // 游戏阶段名称映射
+        this.phaseNames = {
+            'preflop': '翻牌前',
+            'flop': '翻牌',
+            'turn': '转牌',
+            'river': '河牌',
+            'showdown': '摊牌',
+            'waiting': '等待开始'
+        };
+
         this.players = [];
         this.communityCards = [];
         this.deck = [];
@@ -24,6 +34,31 @@ class TexasHoldemGame {
         this.smallBlind = 10;
         this.bigBlind = 20;
         this.dealerPosition = 0;
+    }
+
+    // 记录玩家行动
+    logPlayerAction(playerName, action, betAmount, chipsRemaining) {
+        console.log(`[玩家] ${playerName} 行动: ${action} (下注: ${betAmount}, 剩余筹码: ${chipsRemaining})`);
+    }
+
+    // 记录游戏阶段
+    logGamePhase(phase) {
+        console.log(`[阶段] ${this.phaseNames[phase]}阶段 (底池: ${this.pot})`);
+    }
+
+    // 记录底池变化
+    logPotChange(amount, newPot) {
+        console.log(`[筹码] 底池变化: +${amount} (新底池: ${newPot})`);
+    }
+
+    // 记录获胜信息
+    logWinner(winners, winAmount, handValue) {
+        if (winners.length === 1) {
+            console.log(`[结果] ${winners[0].name} 获胜! 赢得 ${winAmount} 筹码 (${handValue})`);
+        } else {
+            const winnerNames = winners.map(w => w.name).join(', ');
+            console.log(`[结果] ${winnerNames} 平分底池! 每人赢得 ${winAmount} 筹码 (${handValue})`);
+        }
     }
 
     initGame(humanPlayerName = 'Player 1') {
@@ -175,20 +210,20 @@ class TexasHoldemGame {
         // 更新AI状态显示
         if (player.isAI) {
             const aiStatus = player.ai.getEmotionalFeedback();
-            console.log(`${player.name} 状态: ${aiStatus}`);
+            this.logPlayerAction(player.name, `AI状态: ${aiStatus}`, 0, player.chips);
             this.updateAIStatusUI(this.currentPlayerIndex, aiStatus);
-            console.log(`${player.name} 行动: ${action}, `, player);
+            this.logPlayerAction(player.name, `AI行动: ${action}`, 0, player.chips);
         }
 
         switch (action) {
             case 'fold':
                 player.folded = true;
-                console.log(`${player.name} 弃牌`);
+                this.logPlayerAction(player.name, '弃牌', 0, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex, 'fold');
                 // 检查是否只剩一家活跃玩家
                 const activePlayers = this.players.filter(p => !p.folded);
                 if (activePlayers.length === 1) {
-                    console.log(`只剩 ${activePlayers[0].name} 未弃牌，直接获胜`);
+                    this.logWinner([activePlayers[0]], this.pot, "直接获胜");
                     this.gamePhase = 'showdown';
                     this.determineWinner();
                     return;
@@ -200,7 +235,7 @@ class TexasHoldemGame {
                 player.chips -= callAmount;
                 player.currentBet = this.currentBet;
                 this.pot += callAmount;
-                console.log(`${player.name} 跟注 ${callAmount}`);
+                this.logPlayerAction(player.name, '跟注', callAmount, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
                     callAmount > 0 ? 'call' : 'check');
                 break;
@@ -212,7 +247,7 @@ class TexasHoldemGame {
                 this.currentBet = player.currentBet;
                 this.pot += totalRaise;
                 this.lastRaisePosition = this.currentPlayerIndex;
-                console.log(`${player.name} 加注 ${amount}`);
+                this.logPlayerAction(player.name, '加注', amount, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
                     player.chips === 0 ? 'allin' : 'raise');
                 break;
@@ -220,7 +255,7 @@ class TexasHoldemGame {
 
         // 检查是否进入下一阶段
         if (this.allPlayersActed()) {
-            console.log('所有玩家已完成行动，进入下一阶段');
+            this.logGamePhase(this.gamePhase);
             this.nextPhase();
         } else {
             this.nextPlayer();
@@ -233,7 +268,7 @@ class TexasHoldemGame {
 
         // 特殊情况：所有玩家都弃牌
         if (activePlayers.length === 0) {
-            console.log('所有玩家都已弃牌，进入摊牌阶段');
+            this.logGamePhase('showdown');
             return true;
         }
 
@@ -252,8 +287,16 @@ class TexasHoldemGame {
     }
 
     nextPlayer() {
+        let attempts = 0;
+        const maxAttempts = this.players.length;
+
         do {
             this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
+            attempts++;
+            if (attempts >= maxAttempts) {
+                console.error('无法找到未弃牌的玩家');
+                break;
+            }
         } while (this.players[this.currentPlayerIndex].folded);
 
         // 更新UI显示当前玩家
@@ -346,7 +389,7 @@ class TexasHoldemGame {
         callBtn.disabled = false;
         raiseBtn.disabled = false;
 
-        console.log(`开始第${this.bettingRound}轮下注`);
+        this.logGamePhase(this.gamePhase);
     }
 
     dealCommunityCards(count) {
@@ -384,30 +427,51 @@ class TexasHoldemGame {
 
         // 分配筹码
         const winAmount = Math.floor(this.pot / winners.length);
-        for (const winner of winners) {
-            winner.player.chips += winAmount;
+        const remainder = this.pot % winners.length; // 处理不能整除的余数
+
+        this.logPotChange(this.pot, this.pot);
+
+        for (let i = 0; i < winners.length; i++) {
+            // 前remainder个赢家多分1个筹码
+            const amount = winAmount + (i < remainder ? 1 : 0);
+            winners[i].player.chips += amount;
+            this.logWinner(winners, winAmount, winners[0].hand.value);
         }
         this.pot = 0;
 
         // 显示获胜消息
         let winMessage = '';
         if (winners.length === 1) {
-            winMessage = `${winners[0].player.name} 获胜! 赢得 ${winAmount} 筹码 (${winners[0].hand.value})`;
+            winMessage = `${winners[0].player.name} 获胜! 赢得 ${winAmount + remainder} 筹码 (${winners[0].hand.value})`;
         } else {
             const winnerNames = winners.map(w => w.player.name).join(', ');
-            winMessage = `${winnerNames} 平分底池! 每人赢得 ${winAmount} 筹码 (${winners[0].hand.value})`;
+            winMessage = `${winnerNames} 平分底池! 每人赢得 ${winAmount}${remainder > 0 ? '+' + remainder : ''} 筹码 (${winners[0].hand.value})`;
         }
         this.showGameMessage(winMessage);
+
+        // 立即更新UI显示筹码变化
+        this.updateUI();
+        this.uiManager.updatePlayerChips(this.players); // 强制更新筹码显示
+
+        // 添加额外的UI更新确保显示正确
+        setTimeout(() => {
+            this.uiManager.updatePlayerChips(this.players);
+        }, 100);
 
         // 重置游戏状态并开始新的一轮
         setTimeout(() => {
             this.resetGameState();
             this.updateUI();
+            this.uiManager.clearActionStatus(); // 清除所有玩家行动状态显示
+            // 确保UI完全更新后再设置当前玩家
+            setTimeout(() => {
+                this.updatePlayerTurnUI();
+            }, 100);
         }, 2000);
     }
     resetGameState() {
         console.log('[DEBUG] 开始重置游戏状态 - 当前阶段:', this.gamePhase, '公共牌:', this.communityCards);
-        // 保存玩家筹码
+        // 保存玩家筹码状态
         const chips = this.players.map(p => p.chips);
 
         // 重置游戏状态
@@ -417,11 +481,11 @@ class TexasHoldemGame {
         this.gamePhase = 'preflop';
         this.playerActedThisRound = new Array(this.players.length).fill(false);
 
-        // 重置玩家状态但保留筹码
+        // 完全重置玩家状态
         this.players.forEach((player, index) => {
             player.cards = [];
             player.currentBet = 0;
-            player.folded = false;
+            player.folded = false; // 强制重置弃牌状态
             player.chips = chips[index];
 
             // 检查筹码不足情况
@@ -451,7 +515,13 @@ class TexasHoldemGame {
 
         // 设置当前玩家
         this.currentPlayerIndex = (this.dealerPosition + 3) % this.players.length;
-        this.updatePlayerTurnUI();
+        // 强制重置所有玩家状态显示
+        this.uiManager.clearActionStatus();
+        this.updateUI();  // 强制更新所有UI元素
+        // 确保UI完全更新后再设置当前玩家
+        setTimeout(() => {
+            this.updatePlayerTurnUI();
+        }, 100);
 
         // 显示新一局开始消息
         this.showGameMessage(`新一局开始! 庄家: ${this.players[this.dealerPosition].name}`);
@@ -488,7 +558,7 @@ class TexasHoldemGame {
             return;
         }
 
-        console.log(`[AI] ${currentPlayer.name} 开始决策...`);
+        this.logPlayerAction(currentPlayer.name, 'AI决策开始', 0, currentPlayer.chips);
 
         // 获取AI决策
         const decision = currentPlayer.ai.makeDecision(
@@ -547,9 +617,9 @@ class TexasHoldemGame {
         // 更新AI状态显示
         if (player.isAI) {
             const aiStatus = player.ai.getEmotionalFeedback();
-            console.log(`${player.name} 状态: ${aiStatus}`);
+            this.logPlayerAction(player.name, `AI状态: ${aiStatus}`, 0, player.chips);
             this.updateAIStatusUI(this.currentPlayerIndex, aiStatus);
-            console.log(`${player.name} 行动: ${action}, `);
+            this.logPlayerAction(player.name, `AI行动: ${action}`, 0, player.chips);
         }
 
         // 更新UI显示当前玩家状态
@@ -558,12 +628,12 @@ class TexasHoldemGame {
         switch (action) {
             case 'fold':
                 player.folded = true;
-                console.log(`${player.name} 弃牌`);
+                this.logPlayerAction(player.name, '弃牌', 0, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex, 'fold');
                 // 检查是否只剩一家活跃玩家
                 const activePlayers = this.players.filter(p => !p.folded);
                 if (activePlayers.length === 1) {
-                    console.log(`只剩 ${activePlayers[0].name} 未弃牌，直接获胜`);
+                    this.logPlayerAction(activePlayers[0].name, '直接获胜', 0, activePlayers[0].chips);
                     this.gamePhase = 'showdown';
                     this.determineWinner();
                     return;
@@ -575,7 +645,7 @@ class TexasHoldemGame {
                 player.chips -= callAmount;
                 player.currentBet = this.currentBet;
                 this.pot += callAmount;
-                console.log(`${player.name} 跟注 ${callAmount}`);
+                this.logPlayerAction(player.name, '跟注', callAmount, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
                     callAmount > 0 ? 'call' : 'check');
                 break;
@@ -587,7 +657,7 @@ class TexasHoldemGame {
                 this.currentBet = player.currentBet;
                 this.pot += totalRaise;
                 this.lastRaisePosition = this.currentPlayerIndex;
-                console.log(`${player.name} 加注 ${amount}`);
+                this.logPlayerAction(player.name, '加注', amount, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
                     player.chips === 0 ? 'allin' : 'raise');
                 break;
@@ -595,7 +665,7 @@ class TexasHoldemGame {
 
         // 检查是否进入下一阶段
         if (this.allPlayersActed()) {
-            console.log('所有玩家已完成行动，进入下一阶段');
+            this.logGamePhase(this.gamePhase);
             this.nextPhase();
         } else {
             this.nextPlayer();
