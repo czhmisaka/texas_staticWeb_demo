@@ -211,12 +211,16 @@ export class UIManager {
     updateCommunityCards(communityCards) {
         const communityCardsElement = document.getElementById('community-cards');
         if (communityCardsElement) {
-            communityCardsElement.innerHTML = '';
-            communityCards.forEach(card => {
-                const cardElement = document.createElement('div');
-                cardElement.className = 'card';
-                cardElement.textContent = `${card.value}${card.suit[0].toUpperCase()}`;
-                communityCardsElement.appendChild(cardElement);
+            const cardPlaceholders = communityCardsElement.querySelectorAll('.card-placeholder');
+            cardPlaceholders.forEach((cardEl, index) => {
+                if (index < communityCards.length) {
+                    const card = communityCards[index];
+                    cardEl.textContent = `${card.value}${card.suit[0].toUpperCase()}`;
+                    cardEl.className = `card-placeholder ${card.suit}`;
+                } else {
+                    cardEl.textContent = '';
+                    cardEl.className = 'card-placeholder';
+                }
             });
         }
     }
@@ -254,3 +258,4 @@ export class UIManager {
             el.className = 'ai-fold-status active';
         });
     }
+}

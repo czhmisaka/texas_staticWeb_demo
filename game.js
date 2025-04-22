@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-23 02:45:52
+ * @LastEditTime: 2025-04-23 03:00:59
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -395,9 +395,6 @@ class TexasHoldemGame {
 
         // 确保hand.value已正确设置
         const handValue = winners[0].hand.value || '未知牌型';
-
-        // 记录日志
-        logWinner(winners, winAmount, handValue);
 
         // 显示获胜消息
         let winMessage = '';
