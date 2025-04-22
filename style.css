@@ -542,50 +542,6 @@ body {
     min-height: 27px;
 }
 
-/* 胜利动画 */
-.victory-animation {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
-    animation: victoryPulse 1.5s ease-out;
-}
-
-@keyframes victoryPulse {
-    0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 0;
-    }
-    50% {
-        transform: translate(-50%, -50%) scale(1.2);
-        opacity: 1;
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 0.8;
-    }
-}
-
-.victory-text {
-    font-size: 48px;
-    font-weight: bold;
-    color: gold;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-    animation: textGlow 2s infinite alternate;
-}
-
-@keyframes textGlow {
-    from {
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-    }
-    to {
-        text-shadow:
-            0 0 20px rgba(255, 215, 0, 0.9),
-            0 0 30px rgba(255, 215, 0, 0.5);
-    }
-}
-
 /* AI发言气泡 */
 .ai-speech-bubble {
     position: absolute;

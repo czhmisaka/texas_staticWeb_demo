@@ -2,6 +2,16 @@ class VictoryAnimator {
     constructor() {
         this.container = document.createElement('div');
         this.container.className = 'victory-animation';
+        this.container.style.position = 'fixed';
+        this.container.style.top = '0';
+        this.container.style.left = '0';
+        this.container.style.width = '100vw';
+        this.container.style.height = '100vh';
+        this.container.style.zIndex = '2000';
+        this.container.style.display = 'flex';
+        this.container.style.justifyContent = 'center';
+        this.container.style.alignItems = 'center';
+        this.container.style.pointerEvents = 'none';
         document.body.appendChild(this.container);
     }
 
