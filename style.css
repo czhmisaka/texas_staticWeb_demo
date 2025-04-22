@@ -238,16 +238,99 @@ body {
     font-weight: bold;
 }
 
-/* AI反馈 */
-.ai-feedback {
+/* AI信息面板 */
+.ai-info-panel {
     margin-top: 10px;
-    font-size: 16px;
-    padding: 8px 12px;
+    padding: 10px;
     background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    color: #333;
+    border-radius: 10px;
     border: 1px solid #ddd;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 牌力评估 */
+.ai-hand-strength {
+    margin-bottom: 8px;
+}
+
+.ai-hand-strength-bar {
+    height: 10px;
+    background: linear-gradient(to right, #ff6b6b, #ffd166, #06d6a0);
+    border-radius: 5px;
+    margin-bottom: 3px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-hand-strength-bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background-color: rgba(255, 255, 255, 0.3);
+    transition: width 0.5s ease;
+}
+
+.ai-hand-strength-text {
+    font-size: 12px;
+    color: #333;
+    display: block;
+    text-align: center;
+}
+
+/* 策略类型 */
+.ai-personality {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.ai-personality-icon {
+    margin-right: 5px;
+    font-size: 16px;
+}
+
+.ai-personality-text {
+    color: #333;
+}
+
+/* 对手预测 */
+.ai-prediction {
+    height: 30px;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.ai-prediction-chart {
+    height: 100%;
+    background: linear-gradient(to right, #ff6b6b 0%, #ff6b6b 50%, #06d6a0 50%, #06d6a0 100%);
+    border-radius: 5px;
+    transition: all 0.5s ease;
+}
+
+/* 决策理由 */
+.ai-reasoning {
+    font-size: 12px;
+    color: #333;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    margin-bottom: 8px;
+}
+
+/* AI反馈 */
+.ai-feedback {
+    font-size: 14px;
+    padding: 5px 8px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 5px;
+    color: #333;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
 

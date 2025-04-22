@@ -130,10 +130,56 @@
                 feedback.className = 'ai-feedback';
                 feedback.id = `ai${i}-feedback`;
 
+                // 创建AI信息面板
+                const aiPanel = document.createElement('div');
+                aiPanel.className = 'ai-info-panel';
+
+                // 牌力评估
+                const strengthDiv = document.createElement('div');
+                strengthDiv.className = 'ai-hand-strength';
+                const strengthBar = document.createElement('div');
+                strengthBar.className = 'ai-hand-strength-bar';
+                const strengthText = document.createElement('span');
+                strengthText.className = 'ai-hand-strength-text';
+                strengthText.textContent = '牌力: 0%';
+                strengthDiv.appendChild(strengthBar);
+                strengthDiv.appendChild(strengthText);
+
+                // 策略类型
+                const personalityDiv = document.createElement('div');
+                personalityDiv.className = 'ai-personality';
+                const personalityIcon = document.createElement('span');
+                personalityIcon.className = 'ai-personality-icon';
+                personalityIcon.textContent = '🤖';
+                const personalityText = document.createElement('span');
+                personalityText.className = 'ai-personality-text';
+                personalityText.textContent = '未知';
+                personalityDiv.appendChild(personalityIcon);
+                personalityDiv.appendChild(personalityText);
+
+                // 对手预测
+                const predictionDiv = document.createElement('div');
+                predictionDiv.className = 'ai-prediction';
+                const predictionChart = document.createElement('div');
+                predictionChart.className = 'ai-prediction-chart';
+                predictionDiv.appendChild(predictionChart);
+
+                // 决策理由
+                const reasoningDiv = document.createElement('div');
+                reasoningDiv.className = 'ai-reasoning';
+                reasoningDiv.textContent = '决策理由: 暂无';
+
+                // 组装AI面板
+                aiPanel.appendChild(strengthDiv);
+                aiPanel.appendChild(personalityDiv);
+                aiPanel.appendChild(predictionDiv);
+                aiPanel.appendChild(reasoningDiv);
+                aiPanel.appendChild(feedback);
+
                 playerInfo.appendChild(name);
                 playerInfo.appendChild(chips);
                 playerSeat.appendChild(playerInfo);
-                playerSeat.appendChild(feedback);
+                playerSeat.appendChild(aiPanel);
                 table.appendChild(playerSeat);
             }
         }

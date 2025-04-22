@@ -88,14 +88,53 @@ export class UIManager {
     }
 
     updateAIStatusUI(playerIndex, status) {
-        const statusElement = document.querySelector(`.player-seat:nth-child(${playerIndex + 1}) .ai-feedback`);
+        const player = this.game.players[playerIndex];
+        const seatElement = document.getElementById(`ai${playerIndex}-seat`);
+
+        if (!seatElement) return;
+
+        // 更新AI反馈文本
+        const statusElement = document.getElementById(`ai${playerIndex}-feedback`);
         if (statusElement) {
             statusElement.textContent = status;
-            // 添加动画效果
             statusElement.classList.add('ai-feedback-animate');
             setTimeout(() => {
                 statusElement.classList.remove('ai-feedback-animate');
             }, 1000);
+        }
+
+        // 更新AI信息面板
+        if (player.isAI && player.ai) {
+            // 牌力评估
+            const strengthBar = seatElement.querySelector('.ai-hand-strength-bar');
+            const strengthText = seatElement.querySelector('.ai-hand-strength-text');
+            if (strengthBar && strengthText) {
+                const strength = player.ai.getHandStrength();
+                strengthBar.style.width = `${strength * 100}%`;
+                strengthText.textContent = `牌力: ${Math.round(strength * 100)}%`;
+            }
+
+            // 策略类型
+            const personalityIcon = seatElement.querySelector('.ai-personality-icon');
+            const personalityText = seatElement.querySelector('.ai-personality-text');
+            if (personalityIcon && personalityText) {
+                const personality = player.ai.getPersonality();
+                personalityIcon.textContent = personality.icon;
+                personalityText.textContent = personality.type;
+            }
+
+            // 对手预测
+            const predictionChart = seatElement.querySelector('.ai-prediction-chart');
+            if (predictionChart) {
+                const prediction = player.ai.getOpponentPrediction();
+                predictionChart.style.width = `${prediction * 100}%`;
+            }
+
+            // 决策理由
+            const reasoningElement = seatElement.querySelector('.ai-reasoning');
+            if (reasoningElement) {
+                reasoningElement.textContent = player.ai.getDecisionReasoning();
+            }
         }
     }
 

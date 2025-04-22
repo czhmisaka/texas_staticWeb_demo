@@ -632,6 +632,59 @@ class TexasHoldemAI {
 
         return "🤫 保持沉默";
     }
+
+    getHandStrength() {
+        return this.calculateHandStrength();
+    }
+
+    getPersonality() {
+        return {
+            type: this.personality,
+            icon: {
+                'aggressive': '💢',
+                'conservative': '🛡️',
+                'bluffer': '🎭',
+                'random': '🎲'
+            }[this.personality] || '❓'
+        };
+    }
+
+    getOpponentPrediction() {
+        // 计算对手平均行动预测
+        let total = 0;
+        let count = 0;
+
+        Object.keys(this.opponentStats).forEach(idx => {
+            const prediction = this.predictOpponentAction(parseInt(idx));
+            if (prediction === 'raise') total += 1;
+            else if (prediction === 'call') total += 0.5;
+            count++;
+        });
+
+        return count > 0 ? total / count : 0.5;
+    }
+
+    getDecisionReasoning() {
+        const strength = this.calculateHandStrength();
+        const position = this.position;
+        const strategy = this.strategyWeights;
+
+        let reasoning = `牌力: ${Math.round(strength * 100)}% | 位置: ${position}`;
+        reasoning += `\n策略: ${strategy.primary.toFixed(1)}主/${strategy.secondary.toFixed(1)}次`;
+
+        if (this.lastAction === 'raise') {
+            if (strength > 0.7) reasoning += "\n理由: 强牌加注收割";
+            else if (strength > 0.4) reasoning += "\n理由: 中等牌力试探";
+            else reasoning += "\n理由: 诈唬施压";
+        } else if (this.lastAction === 'call') {
+            if (strength > 0.6) reasoning += "\n理由: 强牌慢玩";
+            else reasoning += "\n理由: 控制底池";
+        } else if (this.lastAction === 'fold') {
+            reasoning += "\n理由: 牌力不足";
+        }
+
+        return reasoning;
+    }
 }
 
 export default TexasHoldemAI;

@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-22 14:59:54
+ * @LastEditTime: 2025-04-22 15:27:42
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -147,6 +147,14 @@ class TexasHoldemGame {
                 player.cards.push(this.deck.pop());
             }
         }
+
+        // 更新AI玩家状态
+        this.players.forEach((player, index) => {
+            if (player.isAI) {
+                const aiStatus = player.ai.getEmotionalFeedback();
+                this.updateAIStatusUI(index, aiStatus);
+            }
+        });
     }
 
     postBlinds() {
@@ -290,6 +298,11 @@ class TexasHoldemGame {
             if (!player.folded) {
                 this.uiManager.updatePlayerActionStatus(index, '');
             }
+            // 更新AI玩家状态
+            if (player.isAI) {
+                const aiStatus = player.ai.getEmotionalFeedback();
+                this.updateAIStatusUI(index, aiStatus);
+            }
         });
 
         switch (this.bettingRound) {
@@ -426,6 +439,14 @@ class TexasHoldemGame {
             const winnerNames = winners.map(w => w.player.name).join(', ');
             winMessage = `${winnerNames} 平分底池! 每人赢得 ${winAmount}${remainder > 0 ? '+' + remainder : ''} 筹码 (${handValue})`;
         }
+
+        // 更新所有AI玩家状态
+        this.players.forEach((player, index) => {
+            if (player.isAI) {
+                const aiStatus = player.ai.getEmotionalFeedback();
+                this.updateAIStatusUI(index, aiStatus);
+            }
+        });
 
         // 同步更新UI
         this.showGameMessage(winMessage);
