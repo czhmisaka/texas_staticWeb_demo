@@ -65,16 +65,20 @@ export class UIManager {
         const foldBtn = document.getElementById('fold-btn');
         const callBtn = document.getElementById('call-btn');
         const raiseBtn = document.getElementById('raise-btn');
+        const fixedBets = document.querySelector('.fixed-bets');
 
         // 确保按钮在允许操作的阶段可用
         const isActionPhase = ['preflop', 'flop', 'turn', 'river'].includes(this.game.gamePhase);
         const isAI = this.game.players[this.game.currentPlayerIndex].isAI;
+        const canRaise = this.game.players[this.game.currentPlayerIndex].chips >
+            (this.game.currentBet - this.game.players[this.game.currentPlayerIndex].currentBet);
 
         // 根据当前玩家类型和游戏阶段控制按钮显示
         if (isActionPhase && !isAI) {
             foldBtn.style.display = 'block';
             callBtn.style.display = 'block';
             raiseBtn.style.display = 'block';
+            fixedBets.style.display = canRaise ? 'block' : 'none';
 
             // 更新按钮文本显示当前下注金额
             const callAmount = this.game.currentBet - this.game.players[this.game.currentPlayerIndex].currentBet;
@@ -84,6 +88,7 @@ export class UIManager {
             foldBtn.style.display = 'none';
             callBtn.style.display = 'none';
             raiseBtn.style.display = 'none';
+            fixedBets.style.display = 'none';
         }
     }
 
