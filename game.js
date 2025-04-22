@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-23 03:00:59
+ * @LastEditTime: 2025-04-23 03:50:52
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -40,9 +40,11 @@ class TexasHoldemGame {
             const winRate = player.isAI && player.ai ?
                 (player.ai.getHandStrength() * 100).toFixed(2) + '%' :
                 'N/A';
+            const communityCards = this.communityCards.map(c => `${c.value}${c.suit[0].toUpperCase()}`).join(' ') || '无';
 
             return {
                 '玩家': player.name,
+                '筹码': player.chips,
                 '下注': player.currentBet,
                 '底牌': cards,
                 '胜率': winRate,
@@ -50,7 +52,11 @@ class TexasHoldemGame {
                     this.playerActedThisRound[this.players.indexOf(player)] ?
                         (player.currentBet === this.currentBet ? '跟注' : '加注') :
                         '等待',
-                '类型': player.isAI ? player.personality : '玩家'
+                '类型': player.isAI ? player.personality : '玩家',
+                'All-in': player.chips === 0 ? '是' : '否',
+                '游戏阶段': this.gamePhase,
+                '公共牌': communityCards,
+                '底池': this.pot
             };
         });
 
@@ -77,6 +83,7 @@ class TexasHoldemGame {
         this.refreshInterval = setInterval(() => {
             that.updateUI()
         }, 100);
+
         // 启动控制台输出定时器(1fps)
         this.consoleInterval = setInterval(() => {
             this.consoleTable();
@@ -219,7 +226,7 @@ class TexasHoldemGame {
 
         // 特殊情况：所有玩家都弃牌
         if (activePlayers.length === 0) {
-            logGamePhase('showdown');
+            logGamePhase('showdown', this.pot);
             return true;
         }
 
@@ -340,7 +347,7 @@ class TexasHoldemGame {
             setTimeout(() => this.handleAITurn(), 1000);
         }
 
-        logGamePhase(this.gamePhase);
+        logGamePhase(this.gamePhase, this.pot);
     }
 
     dealCommunityCards(count) {
@@ -353,6 +360,18 @@ class TexasHoldemGame {
         // 获取所有未弃牌玩家的牌型
         const activePlayers = this.players.filter(p => !p.folded);
         if (activePlayers.length === 0) return;
+
+        // 特殊情况处理：只剩一个玩家时直接获胜
+        if (activePlayers.length === 1) {
+            const winner = activePlayers[0];
+            winner.chips += this.pot;
+            logWinner([{ name: winner.name }], this.pot, '直接获胜');
+
+            // 更新UI
+            this.showGameMessage(`${winner.name} 获胜! 赢得 ${this.pot} 筹码 (所有对手弃牌)`);
+            this.resetGameState();
+            return;
+        }
 
         // 计算每个玩家的最佳牌型
         const playerHands = activePlayers.map(player => {
@@ -367,7 +386,7 @@ class TexasHoldemGame {
         playerHands.sort((a, b) => compareHands(b.hand, a.hand));
 
         // 可能有多个赢家(平分底池)
-        const winners = [playerHands[0]];
+        let winners = [playerHands[0]];
         for (let i = 1; i < playerHands.length; i++) {
             if (compareHands(playerHands[i].hand, playerHands[0].hand) === 0) {
                 winners.push(playerHands[i]);
@@ -379,17 +398,12 @@ class TexasHoldemGame {
         // 分配筹码
         const winAmount = Math.floor(this.pot / winners.length);
         const remainder = this.pot % winners.length; // 处理不能整除的余数
-
-        logPotChange(this.pot, this.pot);
-
+        console.log('user', winners, '余数:', remainder);
         for (let i = 0; i < winners.length; i++) {
             // 前remainder个赢家多分1个筹码
             const amount = winAmount + (i < remainder ? 1 : 0);
             winners[i].player.chips += amount;
             logWinner(winners, winAmount, winners[0].hand.value);
-            console.log(winners, this.players)
-            this.players.forEach((player, index) => {
-            })
         }
         this.pot = 0;
 
@@ -405,27 +419,12 @@ class TexasHoldemGame {
             winMessage = `${winnerNames} 平分底池! 每人赢得 ${winAmount}${remainder > 0 ? '+' + remainder : ''} 筹码 (${handValue})`;
         }
 
-        // 更新所有AI玩家状态
-        this.players.forEach((player, index) => {
-            if (player.isAI) {
-                const aiStatus = player.ai.getEmotionalFeedback();
-                this.updateAIStatusUI(index, aiStatus);
-            }
-        });
-
         // 强制同步更新UI
         this.showGameMessage(winMessage);
-        this.updateUI();
-        this.uiManager.updatePlayerChips(this.players);
 
         // 使用setTimeout确保DOM更新完成
-        setTimeout(() => {
-            // 重置游戏状态
-            this.resetGameState();
-            this.updateUI();
-            this.uiManager.clearActionStatus();
-            this.updatePlayerTurnUI();
-        }, 500);
+        // 重置游戏状态
+        this.resetGameState();
     }
     resetGameState() {
         console.log('[DEBUG] 开始重置游戏状态 - 当前阶段:', this.gamePhase, '公共牌:', this.communityCards);
@@ -487,7 +486,6 @@ class TexasHoldemGame {
         this.currentPlayerIndex = (this.dealerPosition + 3) % this.players.length;
         // 强制重置所有玩家状态显示
         this.uiManager.clearActionStatus();
-        this.updateUI();  // 强制更新所有UI元素
         // 确保UI完全更新后再设置当前玩家
         setTimeout(() => {
             this.updatePlayerTurnUI();
@@ -517,9 +515,8 @@ class TexasHoldemGame {
     }
 
     updateUI() {
-        this.uiManager.updatePlayerChips(this.players);
-        this.uiManager.updateCommunityCards(this.communityCards);
-        this.uiManager.updatePot(this.pot);
+        this.uiManager.refreshAllUI();
+        console.warn('UI更新完成');
     }
 
     stopRefresh() {
@@ -642,7 +639,7 @@ class TexasHoldemGame {
 
         // 检查是否进入下一阶段
         if (this.allPlayersActed()) {
-            logGamePhase(this.gamePhase);
+            logGamePhase(this.gamePhase, this.pot);
             this.nextPhase();
         } else {
             this.nextPlayer();

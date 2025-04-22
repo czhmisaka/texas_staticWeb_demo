@@ -258,4 +258,20 @@ export class UIManager {
             el.className = 'ai-fold-status active';
         });
     }
+
+    refreshAllUI() {
+        this.clearActionStatus();
+        this.updatePlayerTurnUI();
+        this.updatePlayerChips(this.game.players);
+        this.updateCommunityCards(this.game.communityCards);
+        this.updatePot(this.game.pot);
+
+        // 更新所有AI状态
+        this.game.players.forEach((player, index) => {
+            if (player.isAI) {
+                const status = player.ai?.getEmotionalFeedback() || "🤔 思考中...";
+                this.updateAIStatusUI(index, status);
+            }
+        });
+    }
 }
