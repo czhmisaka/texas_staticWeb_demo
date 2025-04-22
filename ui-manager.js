@@ -237,6 +237,14 @@ export class UIManager {
         }
     }
 
+    updateRaiseCount(count) {
+        const raiseCountElement = document.getElementById('raise-count');
+        if (raiseCountElement) {
+            raiseCountElement.textContent = `剩余加注次数: ${count}`;
+            raiseCountElement.style.display = count >= 0 ? 'block' : 'none';
+        }
+    }
+
     clearActionStatus() {
         // 清除所有玩家的行动状态显示
         const actionStatusElements = document.querySelectorAll('.action-status');

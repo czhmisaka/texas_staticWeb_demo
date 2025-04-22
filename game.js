@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-23 05:49:46
+ * @LastEditTime: 2025-04-23 06:09:36
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -34,6 +34,7 @@ class TexasHoldemGame {
         this.dealerPosition = 0;
         this.consoleInterval = null;
         this.refreshInterval = null;
+        this.raiseCount = 0; // 当前轮次加注次数
     }
 
     consoleTable() {
@@ -325,6 +326,7 @@ class TexasHoldemGame {
 
     startNewBettingRound() {
         this.lastRaisePosition = -1;
+        this.raiseCount = 0; // 重置加注计数器
 
         // 重置玩家行动状态
         this.playerActedThisRound = new Array(this.players.length).fill(false);
@@ -708,6 +710,12 @@ class TexasHoldemGame {
             return;
         }
 
+        // 检查加注次数限制
+        if (action === 'raise' && this.raiseCount >= 2) {
+            this.showGameMessage(`本轮加注次数已达上限(2次)`);
+            return;
+        }
+
         // 标记玩家已行动
         this.playerActedThisRound[this.currentPlayerIndex] = true;
 
@@ -739,24 +747,43 @@ class TexasHoldemGame {
 
             case 'call':
                 const callAmount = this.currentBet - player.currentBet;
-                player.chips -= callAmount;
-                player.currentBet = this.currentBet;
-                this.pot += callAmount;
-                logPlayerAction(player.name, '跟注', callAmount, player.chips);
+                let adjustedCallAmount = callAmount;
+                if (callAmount > player.chips) {
+                    adjustedCallAmount = player.chips;
+                    this.showGameMessage(`${player.name} 下注超过筹码数量，已自动调整为全押`);
+                }
+                player.chips -= adjustedCallAmount;
+                player.currentBet = this.currentBet - (callAmount - adjustedCallAmount);
+                this.pot += adjustedCallAmount;
+                logPlayerAction(player.name, '跟注', adjustedCallAmount, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
-                    callAmount > 0 ? 'call' : 'check');
+                    adjustedCallAmount > 0 ? 'call' : 'check');
                 break;
 
             case 'raise':
+                if (this.raiseCount >= 2) {
+                    this.showGameMessage(`本轮加注次数已达上限(2次)`);
+                    return;
+                }
                 const totalRaise = amount + (this.currentBet - player.currentBet);
-                player.chips -= totalRaise;
-                player.currentBet = this.currentBet + amount;
+                let adjustedTotalRaise = totalRaise;
+                if (totalRaise > player.chips) {
+                    adjustedTotalRaise = player.chips;
+                    this.showGameMessage(`${player.name} 下注超过筹码数量，已自动调整为全押`);
+                }
+                player.chips -= adjustedTotalRaise;
+                player.currentBet = this.currentBet + (adjustedTotalRaise - (this.currentBet - player.currentBet));
                 this.currentBet = player.currentBet;
-                this.pot += totalRaise;
+                this.pot += adjustedTotalRaise;
                 this.lastRaisePosition = this.currentPlayerIndex;
-                logPlayerAction(player.name, '加注', totalRaise, player.chips);
+                this.raiseCount++; // 增加加注计数器
+                logPlayerAction(player.name, '加注', adjustedTotalRaise, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
                     player.chips === 0 ? 'allin' : 'raise');
+                // 更新UI显示剩余加注次数
+                if (this.uiManager.updateRaiseCount) {
+                    this.uiManager.updateRaiseCount(2 - this.raiseCount);
+                }
                 break;
         }
 

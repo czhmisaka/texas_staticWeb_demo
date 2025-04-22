@@ -97,13 +97,19 @@ class AISpeechAnimator {
         if (aiSeat) {
             const aiPanel = aiSeat.querySelector('.ai-info-panel');
             if (aiPanel) {
-                // 将气泡添加到AI面板中
-                aiPanel.appendChild(bubble);
-                // 设置相对位置
-                bubble.style.position = 'relative';
-                bubble.style.left = '0';
-                bubble.style.top = '0';
-                bubble.style.margin = '10px 0 0 0';
+                // 将气泡添加到容器中
+                this.speechContainer.appendChild(bubble);
+
+                // 获取AI面板位置
+                const panelRect = aiPanel.getBoundingClientRect();
+                const containerRect = this.speechContainer.getBoundingClientRect();
+
+                // 计算气泡位置
+                bubble.style.position = 'absolute';
+                bubble.style.left = `${panelRect.left - containerRect.left}px`;
+                bubble.style.bottom = `${containerRect.bottom - panelRect.top + 10}px`;
+                bubble.style.margin = '0';
+
                 // 调整指针位置
                 const pointer = bubble.querySelector('.ai-speech-pointer');
                 if (pointer) {
@@ -112,7 +118,7 @@ class AISpeechAnimator {
                     pointer.style.left = '20px';
                     pointer.style.transform = 'none';
                     pointer.style.borderTop = 'none';
-                    pointer.style.borderBottom = pointer.style.borderTop;
+                    pointer.style.borderBottom = '10px solid currentColor';
                 }
             }
         }
