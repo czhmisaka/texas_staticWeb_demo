@@ -1,8 +1,8 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-22 13:00:29
- * @FilePath: /能力积累/texas-holdem/game.js
+ * @LastEditTime: 2025-04-22 13:36:49
+ * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
 import { UIManager } from './ui-manager.js';
@@ -70,6 +70,7 @@ class TexasHoldemGame {
 
         // 重置游戏状态
         this.communityCards = [];
+        this.uiManager.updateCommunityCards(this.communityCards); // 立即更新UI
         this.pot = 0;
         this.currentBet = 0;
         this.gamePhase = 'preflop';
@@ -268,6 +269,13 @@ class TexasHoldemGame {
     }
 
     nextPhase() {
+        // 重置所有玩家行动状态显示
+        this.players.forEach((player, index) => {
+            if (!player.folded) {
+                this.uiManager.updatePlayerActionStatus(index, '');
+            }
+        });
+
         switch (this.bettingRound) {
             case 0: // 翻前 → 翻牌
                 this.bettingRound = 1;
@@ -289,6 +297,10 @@ class TexasHoldemGame {
                 this.determineWinner();
                 return;
         }
+
+        // 更新UI显示新阶段
+        this.uiManager.updateCommunityCards(this.communityCards);
+        this.uiManager.updatePot(this.pot);
         this.startNewBettingRound();
     }
 
@@ -448,6 +460,9 @@ class TexasHoldemGame {
             '庄家位置:', this.dealerPosition,
             '玩家行动状态:', this.playerActedThisRound);
 
+        // 强制更新所有UI状态
+        this.updateUI();
+
         // 如果是AI玩家回合，触发自动行动
         if (this.players[this.currentPlayerIndex].isAI) {
             setTimeout(() => this.handleAITurn(), 1000);
@@ -537,10 +552,14 @@ class TexasHoldemGame {
             console.log(`${player.name} 行动: ${action}, `);
         }
 
+        // 更新UI显示当前玩家状态
+        this.uiManager.updatePlayerTurnUI();
+
         switch (action) {
             case 'fold':
                 player.folded = true;
                 console.log(`${player.name} 弃牌`);
+                this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex, 'fold');
                 // 检查是否只剩一家活跃玩家
                 const activePlayers = this.players.filter(p => !p.folded);
                 if (activePlayers.length === 1) {
@@ -557,6 +576,8 @@ class TexasHoldemGame {
                 player.currentBet = this.currentBet;
                 this.pot += callAmount;
                 console.log(`${player.name} 跟注 ${callAmount}`);
+                this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
+                    callAmount > 0 ? 'call' : 'check');
                 break;
 
             case 'raise':
@@ -567,6 +588,8 @@ class TexasHoldemGame {
                 this.pot += totalRaise;
                 this.lastRaisePosition = this.currentPlayerIndex;
                 console.log(`${player.name} 加注 ${amount}`);
+                this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
+                    player.chips === 0 ? 'allin' : 'raise');
                 break;
         }
 
@@ -580,6 +603,13 @@ class TexasHoldemGame {
             if (this.players[this.currentPlayerIndex].isAI) {
                 setTimeout(() => this.handleAITurn(), 1000);
             }
+        }
+
+        // 确保翻牌后AI能继续行动
+        if (this.gamePhase === 'flop' &&
+            this.players[this.currentPlayerIndex].isAI &&
+            !this.players[this.currentPlayerIndex].folded) {
+            setTimeout(() => this.handleAITurn(), 1000);
         }
     }
 }
