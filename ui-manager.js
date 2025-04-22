@@ -135,6 +135,26 @@ export class UIManager {
             if (reasoningElement) {
                 reasoningElement.textContent = player.ai.getDecisionReasoning();
             }
+
+            // 下注状态
+            const betStatusElement = seatElement.querySelector('.ai-bet-status');
+            if (betStatusElement) {
+                betStatusElement.textContent = `当前下注: ${player.currentBet}`;
+                betStatusElement.className = `ai-bet-status ${player.currentBet > 0 ? 'has-bet' : 'no-bet'}`;
+            }
+
+            // 弃牌状态
+            const foldStatusElement = seatElement.querySelector('.ai-fold-status');
+            if (foldStatusElement) {
+                foldStatusElement.textContent = player.folded ? "已弃牌" : "游戏中";
+                foldStatusElement.className = `ai-fold-status ${player.folded ? 'folded' : 'active'}`;
+
+                // 更新AI反馈文本
+                const feedbackElement = seatElement.querySelector('.ai-feedback');
+                if (feedbackElement) {
+                    feedbackElement.textContent = player.folded ? "🙅‍♂️ 已弃牌" : "";
+                }
+            }
         }
     }
 
@@ -219,5 +239,19 @@ export class UIManager {
         // 清除弃牌状态样式
         const foldedSeats = document.querySelectorAll('.folded-player');
         foldedSeats.forEach(seat => seat.classList.remove('folded-player'));
+
+        // 清除AI玩家下注状态
+        const betStatusElements = document.querySelectorAll('.ai-bet-status');
+        betStatusElements.forEach(el => {
+            el.textContent = '下注: 0';
+            el.className = 'ai-bet-status no-bet';
+        });
+
+        // 清除AI玩家弃牌状态
+        const foldStatusElements = document.querySelectorAll('.ai-fold-status');
+        foldStatusElements.forEach(el => {
+            el.textContent = '游戏中';
+            el.className = 'ai-fold-status active';
+        });
     }
 }

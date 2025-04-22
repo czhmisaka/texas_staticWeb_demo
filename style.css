@@ -585,3 +585,32 @@ body {
         font-size: 3vw;
     }
 }
+
+/* AI下注状态 */
+.ai-bet-status {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    margin-bottom: 8px;
+    border-left: 4px solid #ffd166;
+}
+
+/* AI弃牌状态 */
+.ai-fold-status {
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    padding: 5px;
+    background-color: rgba(255, 107, 107, 0.7);
+    border-radius: 5px;
+    margin-bottom: 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.ai-fold-status.folded {
+    background-color: rgba(255, 107, 107, 0.9);
+}

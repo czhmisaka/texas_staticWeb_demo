@@ -173,11 +173,23 @@
                 reasoningDiv.className = 'ai-reasoning';
                 reasoningDiv.textContent = '决策理由: 暂无';
 
+                // 下注状态
+                const betStatusDiv = document.createElement('div');
+                betStatusDiv.className = 'ai-bet-status';
+                betStatusDiv.textContent = '下注: 0';
+
+                // 弃牌状态
+                const foldStatusDiv = document.createElement('div');
+                foldStatusDiv.className = 'ai-fold-status';
+                foldStatusDiv.textContent = '游戏中';
+
                 // 组装AI面板
                 aiPanel.appendChild(strengthDiv);
                 aiPanel.appendChild(personalityDiv);
                 aiPanel.appendChild(predictionDiv);
                 aiPanel.appendChild(reasoningDiv);
+                aiPanel.appendChild(betStatusDiv);
+                aiPanel.appendChild(foldStatusDiv);
                 aiPanel.appendChild(feedback);
 
                 playerInfo.appendChild(name);
