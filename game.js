@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-22 15:27:42
+ * @LastEditTime: 2025-04-22 16:56:42
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -171,77 +171,6 @@ class TexasHoldemGame {
         this.pot = this.smallBlind + this.bigBlind;
     }
 
-    playerAction(action, amount = 0) {
-        const player = this.players[this.currentPlayerIndex];
-
-        if (player.folded) {
-            this.nextPlayer();
-            return;
-        }
-
-        // 检查游戏阶段是否允许操作
-        if (!['preflop', 'flop', 'turn', 'river'].includes(this.gamePhase)) {
-            console.log(`当前阶段 ${this.gamePhase} 不允许操作`);
-            return;
-        }
-
-        // 标记玩家已行动
-        this.playerActedThisRound[this.currentPlayerIndex] = true;
-
-        // 更新AI状态显示
-        if (player.isAI) {
-            const aiStatus = player.ai.getEmotionalFeedback();
-            logPlayerAction(player.name, `AI状态: ${aiStatus}`, 0, player.chips);
-            this.updateAIStatusUI(this.currentPlayerIndex, aiStatus);
-            logPlayerAction(player.name, `AI行动: ${action}`, 0, player.chips);
-        }
-
-        switch (action) {
-            case 'fold':
-                player.folded = true;
-                logPlayerAction(player.name, '弃牌', 0, player.chips);
-                this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex, 'fold');
-                // 检查是否只剩一家活跃玩家
-                const activePlayers = this.players.filter(p => !p.folded);
-                if (activePlayers.length === 1) {
-                    logWinner([activePlayers[0]], this.pot, "直接获胜");
-                    this.gamePhase = 'showdown';
-                    this.determineWinner();
-                    return;
-                }
-                break;
-
-            case 'call':
-                const callAmount = this.currentBet - player.currentBet;
-                player.chips -= callAmount;
-                player.currentBet = this.currentBet;
-                this.pot += callAmount;
-                logPlayerAction(player.name, '跟注', callAmount, player.chips);
-                this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
-                    callAmount > 0 ? 'call' : 'check');
-                break;
-
-            case 'raise':
-                const totalRaise = amount + (this.currentBet - player.currentBet);
-                player.chips -= totalRaise;
-                player.currentBet = this.currentBet + amount;
-                this.currentBet = player.currentBet;
-                this.pot += totalRaise;
-                this.lastRaisePosition = this.currentPlayerIndex;
-                logPlayerAction(player.name, '加注', amount, player.chips);
-                this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
-                    player.chips === 0 ? 'allin' : 'raise');
-                break;
-        }
-
-        // 检查是否进入下一阶段
-        if (this.allPlayersActed()) {
-            logGamePhase(this.gamePhase);
-            this.nextPhase();
-        } else {
-            this.nextPlayer();
-        }
-    }
 
     allPlayersActed() {
         // 检查是否所有未弃牌的玩家都已完成当前轮次
@@ -647,7 +576,7 @@ class TexasHoldemGame {
                 this.currentBet = player.currentBet;
                 this.pot += totalRaise;
                 this.lastRaisePosition = this.currentPlayerIndex;
-                logPlayerAction(player.name, '加注', amount, player.chips);
+                logPlayerAction(player.name, '加注', totalRaise, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
                     player.chips === 0 ? 'allin' : 'raise');
                 break;
