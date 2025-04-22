@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-23 04:57:46
+ * @LastEditTime: 2025-04-23 05:03:02
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -87,9 +87,9 @@ class TexasHoldemGame {
         }, 100);
 
         // 启动控制台输出定时器(1fps)
-        this.consoleInterval = setInterval(() => {
-            this.consoleTable();
-        }, 1000);
+        // this.consoleInterval = setInterval(() => {
+        //     this.consoleTable();
+        // }, 1000);
 
 
         // 初始化玩家数组

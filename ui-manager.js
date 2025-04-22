@@ -259,6 +259,42 @@ export class UIManager {
         });
     }
 
+    showAIThinking(aiName) {
+        // 显示AI思考状态
+        const currentPlayerIndex = this.game.players.findIndex(p => p.name === aiName);
+        if (currentPlayerIndex >= 0) {
+            const statusElement = document.getElementById(`ai${currentPlayerIndex}-feedback`);
+            if (statusElement) {
+                statusElement.textContent = "🤔 思考中...";
+                statusElement.classList.add('ai-feedback-animate');
+            }
+        }
+    }
+
+    showPhaseTransition(phaseName) {
+        // 显示游戏阶段转换
+        const phaseNames = {
+            'preflop': '翻牌前',
+            'flop': '翻牌圈',
+            'turn': '转牌',
+            'river': '河牌',
+            'showdown': '摊牌'
+        };
+
+        const displayName = phaseNames[phaseName] || phaseName;
+        const phaseElement = document.getElementById('game-phase-indicator');
+        if (phaseElement) {
+            phaseElement.textContent = `当前阶段: ${displayName}`;
+            phaseElement.classList.add('phase-transition-animate');
+            setTimeout(() => {
+                phaseElement.classList.remove('phase-transition-animate');
+            }, 1000);
+        }
+
+        // 显示阶段转换消息
+        this.showGameMessage(`进入${displayName}阶段`);
+    }
+
     refreshAllUI() {
         this.clearActionStatus();
         this.updatePlayerTurnUI();
