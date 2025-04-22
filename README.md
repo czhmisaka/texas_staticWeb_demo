@@ -1,4 +1,4 @@
-# 🃏 德州扑克游戏 [![GitHub stars](https://img.shields.io/github/stars/czhmisaka/texas_staticWeb_demo?style=social)](https://github.com/czhmisaka/texas_staticWeb_demo/stargazers)
+# 🃏 德州扑克游戏 [![GitHub stars](https://img.shields.io/github/stars/czhmisaka/texas_staticWeb_demo?style=social)](https://github.com/czhmisaka/texas_staticWeb_demo/stargazers) [![在线Demo](https://img.shields.io/badge/Demo-在线体验-blue)](http://texas.czht.top/)
 
 基于JavaScript实现的德州扑克游戏，包含完整的游戏逻辑和AI对手系统。
 
@@ -8,6 +8,7 @@
 - 🤖 智能AI对手系统
 - 🃏 卡片评估和胜负判断
 - 🖥️ 用户界面管理
+- 🎭 丰富的动画效果(发牌、下注、胜利等)
 
 ## 📁 项目结构
 
@@ -25,6 +26,9 @@
 | `index.html`          | 前端入口     |
 | `style.css`           | 样式表       |
 | `animations/`         | 动画效果文件 |
+
+## 🖥️ 在线体验
+直接访问: [http://texas.czht.top/](http://texas.czht.top/)
 
 ## 🚀 运行方式
 
@@ -49,6 +53,10 @@ open index.html  # 或在浏览器中直接打开
 - **`ai.js`**: 🧠 AI系统入口，协调各AI子模块
 - **`cards.js`**: 🃏 卡片和牌组管理
 - **`ui-manager.js`**: 💻 处理用户界面交互和显示
+
+## 🤖 AI系统文档
+
+详细AI系统设计文档请参阅：[AI系统文档](ai.md)
 
 ## 📜 游戏规则
 
