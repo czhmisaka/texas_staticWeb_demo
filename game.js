@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-23 02:24:08
+ * @LastEditTime: 2025-04-23 02:45:52
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -31,6 +31,7 @@ class TexasHoldemGame {
         this.bigBlind = 20;
         this.dealerPosition = 0;
         this.consoleInterval = null;
+        this.refreshInterval = null;
     }
 
     consoleTable() {
@@ -67,9 +68,20 @@ class TexasHoldemGame {
         if (this.consoleInterval) {
             clearInterval(this.consoleInterval);
         }
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
 
-        // 启动新定时器
-        // this.consoleInterval = setInterval(() => this.consoleTable(), 500);
+        // 启动UI刷新定时器(10fps)
+        const that = this
+        this.refreshInterval = setInterval(() => {
+            that.updateUI()
+        }, 100);
+        // 启动控制台输出定时器(1fps)
+        this.consoleInterval = setInterval(() => {
+            this.consoleTable();
+        }, 1000);
+
 
         // 初始化玩家数组
         this.players = [];
@@ -404,19 +416,23 @@ class TexasHoldemGame {
             }
         });
 
-        // 同步更新UI
+        // 强制同步更新UI
         this.showGameMessage(winMessage);
         this.updateUI();
         this.uiManager.updatePlayerChips(this.players);
 
-        // 重置游戏状态
-        this.resetGameState();
-        this.updateUI();
-        this.uiManager.clearActionStatus();
-        this.updatePlayerTurnUI();
+        // 使用setTimeout确保DOM更新完成
+        setTimeout(() => {
+            // 重置游戏状态
+            this.resetGameState();
+            this.updateUI();
+            this.uiManager.clearActionStatus();
+            this.updatePlayerTurnUI();
+        }, 500);
     }
     resetGameState() {
         console.log('[DEBUG] 开始重置游戏状态 - 当前阶段:', this.gamePhase, '公共牌:', this.communityCards);
+
         // 保存玩家筹码状态
         const chips = this.players.map(p => p.chips);
 
@@ -425,12 +441,17 @@ class TexasHoldemGame {
             clearInterval(this.consoleInterval);
             this.consoleInterval = null;
         }
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
 
         // 重置游戏状态
         this.communityCards = [];
         this.resetDeck();
         this.shuffleDeck();
         this.gamePhase = 'preflop';
+        this.bettingRound = 0;
         this.playerActedThisRound = new Array(this.players.length).fill(false);
 
         // 完全重置玩家状态
@@ -502,6 +523,13 @@ class TexasHoldemGame {
         this.uiManager.updatePlayerChips(this.players);
         this.uiManager.updateCommunityCards(this.communityCards);
         this.uiManager.updatePot(this.pot);
+    }
+
+    stopRefresh() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
     }
 
     handleAITurn() {

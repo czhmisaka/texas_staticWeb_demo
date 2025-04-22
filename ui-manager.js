@@ -254,4 +254,3 @@ export class UIManager {
             el.className = 'ai-fold-status active';
         });
     }
-}
