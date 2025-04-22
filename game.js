@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-22 16:56:42
+ * @LastEditTime: 2025-04-23 02:24:08
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -17,7 +17,6 @@ import {
 class TexasHoldemGame {
     constructor() {
         this.uiManager = new UIManager(this);
-
         this.players = [];
         this.communityCards = [];
         this.deck = [];
@@ -31,6 +30,31 @@ class TexasHoldemGame {
         this.smallBlind = 10;
         this.bigBlind = 20;
         this.dealerPosition = 0;
+        this.consoleInterval = null;
+    }
+
+    consoleTable() {
+        const tableData = this.players.map(player => {
+            const cards = player.cards.map(c => `${c.value}${c.suit[0].toUpperCase()}`).join(' ');
+            const winRate = player.isAI && player.ai ?
+                (player.ai.getHandStrength() * 100).toFixed(2) + '%' :
+                'N/A';
+
+            return {
+                '玩家': player.name,
+                '下注': player.currentBet,
+                '底牌': cards,
+                '胜率': winRate,
+                '行为': player.folded ? '弃牌' :
+                    this.playerActedThisRound[this.players.indexOf(player)] ?
+                        (player.currentBet === this.currentBet ? '跟注' : '加注') :
+                        '等待',
+                '类型': player.isAI ? player.personality : '玩家'
+            };
+        });
+
+        console.clear();
+        console.table(tableData);
     }
 
 
@@ -38,6 +62,14 @@ class TexasHoldemGame {
         if (!humanPlayerName || typeof humanPlayerName !== 'string') {
             humanPlayerName = 'Player 1';
         }
+
+        // 清除已有定时器
+        if (this.consoleInterval) {
+            clearInterval(this.consoleInterval);
+        }
+
+        // 启动新定时器
+        // this.consoleInterval = setInterval(() => this.consoleTable(), 500);
 
         // 初始化玩家数组
         this.players = [];
@@ -99,10 +131,7 @@ class TexasHoldemGame {
         // 开始第一轮下注
         this.startNewBettingRound();
 
-        // 如果是AI玩家回合，触发自动行动
-        if (this.players[this.currentPlayerIndex].isAI) {
-            setTimeout(() => this.handleAITurn(), 1000);
-        }
+
     }
 
     resetDeck() {
@@ -263,16 +292,6 @@ class TexasHoldemGame {
     }
 
     startNewBettingRound() {
-        // 重置玩家下注状态
-        for (const player of this.players) {
-            player.currentBet = 0;
-        }
-        // 翻前阶段currentBet应为bigBlind，其他阶段重置为0
-        if (this.bettingRound === 0) {
-            this.currentBet = this.bigBlind;
-        } else {
-            this.currentBet = 0;
-        }
         this.lastRaisePosition = -1;
 
         // 重置玩家行动状态
@@ -303,6 +322,11 @@ class TexasHoldemGame {
         foldBtn.disabled = false;
         callBtn.disabled = false;
         raiseBtn.disabled = false;
+
+        // 如果是AI玩家回合，触发自动行动
+        if (this.players[this.currentPlayerIndex].isAI) {
+            setTimeout(() => this.handleAITurn(), 1000);
+        }
 
         logGamePhase(this.gamePhase);
     }
@@ -351,6 +375,9 @@ class TexasHoldemGame {
             const amount = winAmount + (i < remainder ? 1 : 0);
             winners[i].player.chips += amount;
             logWinner(winners, winAmount, winners[0].hand.value);
+            console.log(winners, this.players)
+            this.players.forEach((player, index) => {
+            })
         }
         this.pot = 0;
 
@@ -392,6 +419,12 @@ class TexasHoldemGame {
         console.log('[DEBUG] 开始重置游戏状态 - 当前阶段:', this.gamePhase, '公共牌:', this.communityCards);
         // 保存玩家筹码状态
         const chips = this.players.map(p => p.chips);
+
+        // 清除定时器
+        if (this.consoleInterval) {
+            clearInterval(this.consoleInterval);
+            this.consoleInterval = null;
+        }
 
         // 重置游戏状态
         this.communityCards = [];

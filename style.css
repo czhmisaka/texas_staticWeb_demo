@@ -238,88 +238,69 @@ body {
     font-weight: bold;
 }
 
-/* AI信息面板 */
+/* AI信息面板 - 精简版 */
 .ai-info-panel {
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 5px;
+    padding: 6px;
     background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid #ddd;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-size: 11px;
+    min-width: 90px;
 }
 
-/* 牌力评估 */
+/* 牌力评估 - 精简版 */
 .ai-hand-strength {
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 
 .ai-hand-strength-bar {
-    height: 10px;
+    height: 6px;
     background: linear-gradient(to right, #ff6b6b, #ffd166, #06d6a0);
-    border-radius: 5px;
-    margin-bottom: 3px;
+    border-radius: 3px;
+    margin-bottom: 2px;
     width: 100%;
-    position: relative;
-    overflow: hidden;
-}
-
-.ai-hand-strength-bar::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 0%;
-    background-color: rgba(255, 255, 255, 0.3);
-    transition: width 0.5s ease;
 }
 
 .ai-hand-strength-text {
-    font-size: 12px;
+    font-size: 10px;
     color: #333;
-    display: block;
     text-align: center;
 }
 
-/* 策略类型 */
+/* 策略类型 - 精简版 */
 .ai-personality {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
-    font-size: 14px;
+    margin-bottom: 5px;
+    font-size: 11px;
 }
 
 .ai-personality-icon {
-    margin-right: 5px;
-    font-size: 16px;
-}
-
-.ai-personality-text {
-    color: #333;
-}
-
-/* 对手预测 */
-.ai-prediction {
-    height: 30px;
-    margin-bottom: 8px;
-    position: relative;
-}
-
-.ai-prediction-chart {
-    height: 100%;
-    background: linear-gradient(to right, #ff6b6b 0%, #ff6b6b 50%, #06d6a0 50%, #06d6a0 100%);
-    border-radius: 5px;
-    transition: all 0.5s ease;
-}
-
-/* 决策理由 */
-.ai-reasoning {
+    margin-right: 3px;
     font-size: 12px;
-    color: #333;
-    padding: 5px;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 5px;
-    margin-bottom: 8px;
+}
+
+/* 对手预测 - 精简版 */
+.ai-prediction {
+    margin-bottom: 5px;
+    font-size: 10px;
+    text-align: center;
+}
+
+/* 决策理由 - 精简版(悬停显示) */
+.ai-reasoning {
+    display: none;
+}
+
+.ai-info-panel:hover .ai-reasoning {
+    display: block;
+    font-size: 10px;
+    margin-top: 3px;
+    padding: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
 }
 
 /* AI反馈 */
@@ -586,31 +567,27 @@ body {
     }
 }
 
-/* AI下注状态 */
-.ai-bet-status {
-    font-size: 14px;
+/* AI行动状态 - 精简合并版 */
+.ai-action-status {
+    font-size: 10px;
     font-weight: bold;
-    color: #333;
-    padding: 5px;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 5px;
-    margin-bottom: 8px;
-    border-left: 4px solid #ffd166;
-}
-
-/* AI弃牌状态 */
-.ai-fold-status {
-    font-size: 14px;
-    font-weight: bold;
-    color: white;
-    padding: 5px;
-    background-color: rgba(255, 107, 107, 0.7);
-    border-radius: 5px;
-    margin-bottom: 8px;
+    padding: 3px;
+    border-radius: 3px;
+    margin-bottom: 5px;
     text-align: center;
-    transition: all 0.3s ease;
 }
 
-.ai-fold-status.folded {
-    background-color: rgba(255, 107, 107, 0.9);
+.ai-action-status.bet {
+    background-color: rgba(255, 209, 102, 0.7);
+    color: #333;
+}
+
+.ai-action-status.fold {
+    background-color: rgba(255, 107, 107, 0.7);
+    color: white;
+}
+
+.ai-action-status.check {
+    background-color: rgba(78, 205, 196, 0.7);
+    color: white;
 }
