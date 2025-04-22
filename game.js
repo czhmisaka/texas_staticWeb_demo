@@ -1,12 +1,14 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-23 03:50:52
+ * @LastEditTime: 2025-04-23 04:57:46
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
 import { UIManager } from './ui-manager.js';
 import { evaluateHand, cardValueToRank, compareHands } from './cards-evaluator.js';
+import aiSpeechAnimator from './animations/ai-speech-animations.js';
+import victoryAnimator from './animations/victory-animations.js';
 import {
     logPlayerAction,
     logGamePhase,
@@ -270,6 +272,17 @@ class TexasHoldemGame {
     }
 
     nextPhase() {
+        // 显示阶段转换动画
+        const phaseNames = {
+            'preflop': '翻前',
+            'flop': '翻牌',
+            'turn': '转牌',
+            'river': '河牌',
+            'showdown': '摊牌'
+        };
+        const phaseText = phaseNames[this.gamePhase] || this.gamePhase;
+        this.uiManager.showPhaseTransition(phaseText);
+
         // 重置所有玩家行动状态显示
         this.players.forEach((player, index) => {
             if (!player.folded) {
@@ -410,21 +423,42 @@ class TexasHoldemGame {
         // 确保hand.value已正确设置
         const handValue = winners[0].hand.value || '未知牌型';
 
-        // 显示获胜消息
+        // 显示获胜消息和动画
         let winMessage = '';
         if (winners.length === 1) {
             winMessage = `${winners[0].player.name} 获胜! 赢得 ${winAmount + remainder} 筹码 (${handValue})`;
+            // 显示胜利动画
+            victoryAnimator.showVictory(winners[0].player.name, 'showdown');
+            // 如果是AI获胜，显示发言
+            if (winners[0].player.isAI) {
+                const victoryPhrases = [
+                    "哈哈，我赢了！",
+                    "这就是我的实力！",
+                    "运气也是实力的一部分！",
+                    "你们还需要多练习！"
+                ];
+                const randomPhrase = victoryPhrases[Math.floor(Math.random() * victoryPhrases.length)];
+                aiSpeechAnimator.showMessage(winners[0].player.name, randomPhrase, 'warning');
+            }
         } else {
             const winnerNames = winners.map(w => w.player.name).join(', ');
             winMessage = `${winnerNames} 平分底池! 每人赢得 ${winAmount}${remainder > 0 ? '+' + remainder : ''} 筹码 (${handValue})`;
+            // 显示多个胜利动画
+            winners.forEach(winner => {
+                victoryAnimator.showVictory(winner.player.name, 'showdown');
+                if (winner.player.isAI) {
+                    aiSpeechAnimator.showMessage(winner.player.name, "平分也不错！", 'normal');
+                }
+            });
         }
 
         // 强制同步更新UI
         this.showGameMessage(winMessage);
 
-        // 使用setTimeout确保DOM更新完成
-        // 重置游戏状态
-        this.resetGameState();
+        // 延迟重置游戏状态，确保动画完成
+        setTimeout(() => {
+            this.resetGameState();
+        }, 3500);
     }
     resetGameState() {
         console.log('[DEBUG] 开始重置游戏状态 - 当前阶段:', this.gamePhase, '公共牌:', this.communityCards);
@@ -525,12 +559,14 @@ class TexasHoldemGame {
             this.refreshInterval = null;
         }
     }
-
     handleAITurn() {
         const currentPlayer = this.players[this.currentPlayerIndex];
         if (!currentPlayer.isAI || currentPlayer.folded) {
             return;
         }
+
+        // 显示AI思考动画
+        this.uiManager.showAIThinking(currentPlayer.name);
 
         logPlayerAction(currentPlayer.name, 'AI决策开始', 0, currentPlayer.chips);
 
@@ -540,6 +576,31 @@ class TexasHoldemGame {
             this.currentBet,
             this.pot
         );
+
+        // 根据AI决策类型生成消息
+        let message = '';
+        let type = 'normal';
+
+        switch (decision.action) {
+            case 'fold':
+                message = `${currentPlayer.name}: 我弃牌!`;
+                type = 'warning';
+                break;
+            case 'call':
+                if (this.currentBet - currentPlayer.currentBet > 0) {
+                    message = `${currentPlayer.name}: 我跟注 ${this.currentBet - currentPlayer.currentBet}筹码`;
+                } else {
+                    message = `${currentPlayer.name}: 我过牌`;
+                }
+                break;
+            case 'raise':
+                message = `${currentPlayer.name}: 我加注 ${decision.amount}筹码!`;
+                type = currentPlayer.personality === 'aggressive' ? 'warning' : 'normal';
+                break;
+        }
+
+        // 显示AI发言动画
+        aiSpeechAnimator.showMessage(currentPlayer.name, message, type);
 
         // 执行AI决策
         switch (decision.action) {

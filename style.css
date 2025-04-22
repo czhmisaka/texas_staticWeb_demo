@@ -542,6 +542,114 @@ body {
     min-height: 27px;
 }
 
+/* 胜利动画 */
+.victory-animation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    animation: victoryPulse 1.5s ease-out;
+}
+
+@keyframes victoryPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+}
+
+.victory-text {
+    font-size: 48px;
+    font-weight: bold;
+    color: gold;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    animation: textGlow 2s infinite alternate;
+}
+
+@keyframes textGlow {
+    from {
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    }
+    to {
+        text-shadow:
+            0 0 20px rgba(255, 215, 0, 0.9),
+            0 0 30px rgba(255, 215, 0, 0.5);
+    }
+}
+
+/* AI发言气泡 */
+.ai-speech-bubble {
+    position: absolute;
+    max-width: 200px;
+    padding: 10px 15px;
+    border-radius: 18px;
+    font-size: 14px;
+    z-index: 50;
+    animation: bubbleAppear 0.3s ease-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.ai-speech-bubble::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+}
+
+.ai-speech-bubble.normal {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.ai-speech-bubble.normal::after {
+    border-top-color: #f8f9fa;
+    bottom: -20px;
+    left: 20px;
+}
+
+.ai-speech-bubble.warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.ai-speech-bubble.warning::after {
+    border-top-color: #fff3cd;
+    bottom: -20px;
+    left: 20px;
+}
+
+.ai-speech-bubble.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.ai-speech-bubble.error::after {
+    border-top-color: #f8d7da;
+    bottom: -20px;
+    left: 20px;
+}
+
+@keyframes bubbleAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* 响应式设计 */
 @media (max-width: 700px) {
     .table {

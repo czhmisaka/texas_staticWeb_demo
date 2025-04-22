@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI德州扑克</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations/animations.css">
+    <link rel="stylesheet" href="animations/animations.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
@@ -75,6 +77,8 @@
 
     <script type="module">
         import TexasHoldemGame from './game.js';
+        import { aiSpeechAnimator } from './animations/ai-speech-animations.js';
+        import { victoryAnimator } from './animations/victory-animations.js';
 
         const game = new TexasHoldemGame();
 
