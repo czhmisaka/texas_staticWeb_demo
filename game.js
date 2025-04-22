@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-23 05:03:02
+ * @LastEditTime: 2025-04-23 05:49:46
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -98,7 +98,7 @@ class TexasHoldemGame {
         // 添加人类玩家
         this.players.push({
             name: humanPlayerName,
-            chips: 1000,
+            chips: 20000,
             currentBet: 0,
             folded: false,
             isAI: false,
@@ -106,12 +106,12 @@ class TexasHoldemGame {
         });
 
         // 添加6个AI玩家
-        // const aiPersonalities = ['aggressive', 'conservative', 'random', 'bluffer', 'random', 'bluffer'];
-        const aiPersonalities = ['aggressive', 'conservative'];
+        const aiPersonalities = ['aggressive', 'conservative', 'random', 'bluffer', 'random', 'bluffer'];
+        // const aiPersonalities = ['aggressive', 'conservative'];
         aiPersonalities.forEach((personality, index) => {
             this.players.push({
                 name: `AI-${index + 1}`,
-                chips: 1000,
+                chips: 10000,
                 currentBet: 0,
                 folded: false,
                 isAI: true,
@@ -463,6 +463,13 @@ class TexasHoldemGame {
     resetGameState() {
         console.log('[DEBUG] 开始重置游戏状态 - 当前阶段:', this.gamePhase, '公共牌:', this.communityCards);
 
+        // 检查是否有玩家筹码为0
+        const bankruptPlayers = this.players.filter(p => p.chips <= 0);
+        if (bankruptPlayers.length > 0) {
+            this.endGame();
+            return;
+        }
+
         // 保存玩家筹码状态
         const chips = this.players.map(p => p.chips);
 
@@ -546,6 +553,61 @@ class TexasHoldemGame {
     showGameMessage(msg) {
         // 调用 this 对象中的 uiManager 的 showGameMessage 方法，并传入消息参数 msg
         this.uiManager.showGameMessage(msg);
+    }
+
+    endGame() {
+        // 停止所有游戏循环
+        if (this.consoleInterval) {
+            clearInterval(this.consoleInterval);
+            this.consoleInterval = null;
+        }
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
+
+        // 按筹码排序玩家
+        const rankedPlayers = [...this.players].sort((a, b) => b.chips - a.chips);
+
+        // 创建排名列表HTML
+        let rankingHTML = '';
+        rankedPlayers.forEach((player, index) => {
+            const isWinner = index === 0;
+            rankingHTML += `
+                <li class="ranking-item ${isWinner ? 'winner' : ''}">
+                    <span>${index + 1}. ${player.name}</span>
+                    <span>${player.chips}筹码</span>
+                </li>
+            `;
+        });
+
+        // 显示游戏结束卡片
+        const gameOverCard = document.createElement('div');
+        gameOverCard.className = 'game-over-card';
+        gameOverCard.innerHTML = `
+            <h2>游戏结束</h2>
+            <ul class="ranking-list">
+                ${rankingHTML}
+            </ul>
+            <button id="restart-game-btn">重新开始</button>
+        `;
+        document.body.appendChild(gameOverCard);
+
+        // 添加重新开始按钮事件
+        document.getElementById('restart-game-btn').addEventListener('click', () => {
+            location.reload();
+        });
+
+        // 禁用所有操作按钮
+        const foldBtn = document.getElementById('fold-btn');
+        const callBtn = document.getElementById('call-btn');
+        const raiseBtn = document.getElementById('raise-btn');
+        const fixedBets = document.querySelector('.fixed-bets');
+
+        if (foldBtn) foldBtn.style.display = 'none';
+        if (callBtn) callBtn.style.display = 'none';
+        if (raiseBtn) raiseBtn.style.display = 'none';
+        if (fixedBets) fixedBets.style.display = 'none';
     }
 
     updateUI() {

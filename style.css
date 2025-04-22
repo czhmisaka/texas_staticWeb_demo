@@ -655,3 +655,76 @@ body {
     background-color: rgba(78, 205, 196, 0.7);
     color: white;
 }
+
+/* 游戏结束卡片 */
+.game-over-card {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    z-index: 1000;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.game-over-card h2 {
+    color: #ffd700;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.game-over-card .ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.game-over-card .ranking-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    margin: 5px 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.game-over-card .ranking-item.winner {
+    background-color: rgba(255, 215, 0, 0.2);
+    font-weight: bold;
+}
+
+.game-over-card button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: all 0.3s;
+}
+
+.game-over-card button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
