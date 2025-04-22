@@ -93,16 +93,28 @@ class AISpeechAnimator {
     }
 
     positionBubble(bubble, aiName) {
-        const playerElement = document.querySelector(`.player[data-name="${aiName}"]`);
-        if (playerElement) {
-            const rect = playerElement.getBoundingClientRect();
-            bubble.style.left = `${rect.left + rect.width / 2 - bubble.offsetWidth / 2}px`;
-            bubble.style.top = `${rect.top - bubble.offsetHeight - 10}px`;
-        } else {
-            // 默认位置
-            bubble.style.left = '50%';
-            bubble.style.top = '20%';
-            bubble.style.transform = 'translateX(-50%)';
+        const aiSeat = document.getElementById(`${aiName}-seat`);
+        if (aiSeat) {
+            const aiPanel = aiSeat.querySelector('.ai-info-panel');
+            if (aiPanel) {
+                // 将气泡添加到AI面板中
+                aiPanel.appendChild(bubble);
+                // 设置相对位置
+                bubble.style.position = 'relative';
+                bubble.style.left = '0';
+                bubble.style.top = '0';
+                bubble.style.margin = '10px 0 0 0';
+                // 调整指针位置
+                const pointer = bubble.querySelector('.ai-speech-pointer');
+                if (pointer) {
+                    pointer.style.bottom = 'auto';
+                    pointer.style.top = '-10px';
+                    pointer.style.left = '20px';
+                    pointer.style.transform = 'none';
+                    pointer.style.borderTop = 'none';
+                    pointer.style.borderBottom = pointer.style.borderTop;
+                }
+            }
         }
     }
 

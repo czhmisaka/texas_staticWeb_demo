@@ -1,6 +1,6 @@
 /* AI发言气泡样式 */
 .ai-speech-bubble {
-    position: absolute;
+    position: relative;
     max-width: 300px;
     padding: 12px 16px;
     border-radius: 8px;
@@ -13,6 +13,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin: 10px 0 0 0;
 }
 
 .ai-speech-emoji {
@@ -376,103 +377,103 @@
 }
 
 .ai-speech-bubble.thinking .ai-speech-pointer {
-    border-top: 10px solid #667eea;
+    border-bottom-color: #667eea;
 }
 
 .ai-speech-bubble.winning .ai-speech-pointer {
-    border-top: 10px solid #f6e05e;
+    border-bottom-color: #f6e05e;
 }
 
 .ai-speech-bubble.losing .ai-speech-pointer {
-    border-top: 10px solid #4a5568;
+    border-bottom-color: #4a5568;
 }
 
 .ai-speech-bubble.royalflush .ai-speech-pointer {
-    border-top: 10px solid #9f7aea;
+    border-bottom-color: #9f7aea;
 }
 
 .ai-speech-bubble.straightflush .ai-speech-pointer {
-    border-top: 10px solid #63b3ed;
+    border-bottom-color: #63b3ed;
 }
 
 .ai-speech-bubble.fourkind .ai-speech-pointer {
-    border-top: 10px solid #f6ad55;
+    border-bottom-color: #f6ad55;
 }
 
 .ai-speech-bubble.fullhouse .ai-speech-pointer {
-    border-top: 10px solid #68d391;
+    border-bottom-color: #68d391;
 }
 
 .ai-speech-bubble.flush .ai-speech-pointer {
-    border-top: 10px solid #667eea;
+    border-bottom-color: #667eea;
 }
 
 .ai-speech-bubble.straight .ai-speech-pointer {
-    border-top: 10px solid #f6e05e;
+    border-bottom-color: #f6e05e;
 }
 
 .ai-speech-bubble.threekind .ai-speech-pointer {
-    border-top: 10px solid #f687b3;
+    border-bottom-color: #f687b3;
 }
 
 .ai-speech-bubble.twopair .ai-speech-pointer {
-    border-top: 10px solid #a0aec0;
+    border-bottom-color: #a0aec0;
 }
 
 .ai-speech-bubble.pair .ai-speech-pointer {
-    border-top: 10px solid #e2e8f0;
+    border-bottom-color: #e2e8f0;
 }
 
 .ai-speech-bubble.warning .ai-speech-pointer {
-    border-top: 10px solid #e53e3e;
+    border-bottom-color: #e53e3e;
 }
 
 .ai-speech-bubble.happy .ai-speech-pointer {
-    border-top: 10px solid #38a169;
+    border-bottom-color: #38a169;
 }
 
 .ai-speech-bubble.sad .ai-speech-pointer {
-    border-top: 10px solid #3182ce;
+    border-bottom-color: #3182ce;
 }
 
 .ai-speech-bubble.surprise .ai-speech-pointer {
-    border-top: 10px solid #9f7aea;
+    border-bottom-color: #9f7aea;
 }
 
 .ai-speech-bubble.bluff .ai-speech-pointer {
-    border-top: 10px solid #ed8936;
+    border-bottom-color: #ed8936;
 }
 
 .ai-speech-bubble.allin .ai-speech-pointer {
-    border-top: 10px solid #f56565;
+    border-bottom-color: #f56565;
 }
 
 .ai-speech-bubble.fold .ai-speech-pointer {
-    border-top: 10px solid #718096;
+    border-bottom-color: #718096;
 }
 
 .ai-speech-bubble.raise .ai-speech-pointer {
-    border-top: 10px solid #d53f8c;
+    border-bottom-color: #d53f8c;
 }
 
 /* 三角形指针 */
 .ai-speech-pointer {
     position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: -10px;
+    left: 20px;
     width: 0;
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
+    border-bottom: 10px solid;
 }
 
 .ai-speech-bubble.normal .ai-speech-pointer {
-    border-top: 10px solid #4a5568;
+    border-bottom-color: #4a5568;
 }
 
 .ai-speech-bubble.warning .ai-speech-pointer {
-    border-top: 10px solid #e53e3e;
+    border-bottom-color: #e53e3e;
 }
 
 /* AI思考动画 */
