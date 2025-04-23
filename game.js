@@ -1,7 +1,7 @@
 /*
  * @Date: 2025-04-21 12:55:31
  * @LastEditors: CZH
- * @LastEditTime: 2025-04-23 06:09:36
+ * @LastEditTime: 2025-04-23 07:30:48
  * @FilePath: /texas-holdem/game.js
  */
 import TexasHoldemAI from './ai.js';
@@ -31,6 +31,7 @@ class TexasHoldemGame {
         this.playerActedThisRound = [];
         this.smallBlind = 10;
         this.bigBlind = 20;
+        this.maxBet = 2000; // 单次最大下注限制
         this.dealerPosition = 0;
         this.consoleInterval = null;
         this.refreshInterval = null;
@@ -103,7 +104,8 @@ class TexasHoldemGame {
             currentBet: 0,
             folded: false,
             isAI: false,
-            cards: []
+            cards: [],
+            raiseCount: 0
         });
 
         // 添加6个AI玩家
@@ -118,7 +120,8 @@ class TexasHoldemGame {
                 isAI: true,
                 personality,
                 cards: [],
-                ai: new TexasHoldemAI(this, index) // 使用index以匹配玩家数组索引(0-based)
+                ai: new TexasHoldemAI(this, index), // 使用index以匹配玩家数组索引(0-based)
+                raiseCount: 0
             });
         });
 
@@ -326,7 +329,10 @@ class TexasHoldemGame {
 
     startNewBettingRound() {
         this.lastRaisePosition = -1;
-        this.raiseCount = 0; // 重置加注计数器
+        // 重置所有玩家的加注计数器
+        this.players.forEach(player => {
+            player.raiseCount = 0;
+        });
 
         // 重置玩家行动状态
         this.playerActedThisRound = new Array(this.players.length).fill(false);
@@ -614,6 +620,7 @@ class TexasHoldemGame {
 
     updateUI() {
         this.uiManager.refreshAllUI();
+        this.uiManager.updatePlayerTurnUI();
         console.warn('UI更新完成');
     }
 
@@ -634,12 +641,17 @@ class TexasHoldemGame {
 
         logPlayerAction(currentPlayer.name, 'AI决策开始', 0, currentPlayer.chips);
 
-        // 获取AI决策
-        const decision = currentPlayer.ai.makeDecision(
+        // 获取AI决策并确保不超过最大下注限制
+        let decision = currentPlayer.ai.makeDecision(
             this.communityCards,
             this.currentBet,
             this.pot
         );
+
+        // 如果AI决定加注，确保不超过最大限制
+        if (decision.action === 'raise' && decision.amount > this.maxBet) {
+            decision.amount = this.maxBet;
+        }
 
         // 根据AI决策类型生成消息
         let message = '';
@@ -711,8 +723,8 @@ class TexasHoldemGame {
         }
 
         // 检查加注次数限制
-        if (action === 'raise' && this.raiseCount >= 2) {
-            this.showGameMessage(`本轮加注次数已达上限(2次)`);
+        if (action === 'raise' && player.raiseCount >= 2) {
+            this.showGameMessage(`${player.name} 本轮加注次数已达上限(2次)`);
             return;
         }
 
@@ -761,6 +773,10 @@ class TexasHoldemGame {
                 break;
 
             case 'raise':
+                if (amount > this.maxBet) {
+                    this.showGameMessage(`单次下注不能超过${this.maxBet}筹码`);
+                    return;
+                }
                 if (this.raiseCount >= 2) {
                     this.showGameMessage(`本轮加注次数已达上限(2次)`);
                     return;
@@ -776,7 +792,7 @@ class TexasHoldemGame {
                 this.currentBet = player.currentBet;
                 this.pot += adjustedTotalRaise;
                 this.lastRaisePosition = this.currentPlayerIndex;
-                this.raiseCount++; // 增加加注计数器
+                player.raiseCount++; // 增加玩家加注计数器
                 logPlayerAction(player.name, '加注', adjustedTotalRaise, player.chips);
                 this.uiManager.updatePlayerActionStatus(this.currentPlayerIndex,
                     player.chips === 0 ? 'allin' : 'raise');
