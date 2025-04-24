@@ -1,0 +1,44 @@
+<!--
+ * @Date: 2025-04-23 09:59:31
+ * @LastEditors: CZH
+ * @LastEditTime: 2025-04-23 11:01:58
+ * @FilePath: /texas-holdem/mobile.html
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>德州扑克(移动版)</title>
+    <link rel="stylesheet" href="mobile.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- 移动端专用UI结构 -->
+        <div class="mobile-controls">
+            <button class="mobile-btn" id="fold-btn">弃牌</button>
+            <button class="mobile-btn" id="check-btn">看牌</button>
+            <button class="mobile-btn" id="call-btn">跟注</button>
+            <button class="mobile-btn" id="raise-btn">加注</button>
+        </div>
+        <!-- 共享游戏区域 -->
+        <div id="game-area"></div>
+    </div>
+    <script type="module">
+        import { GameManager } from './game.js';
+        import { UIManager } from './ui-manager.js';
+
+        // 暴露GameManager到全局
+        window.GameManager = GameManager;
+
+        // 初始化移动端UI
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载移动端逻辑
+            import('./mobile.js');
+        });
+    </script>
+</body>
+
+</html>

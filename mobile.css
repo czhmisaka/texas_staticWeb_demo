@@ -1,0 +1,147 @@
+/* 移动端基础样式 */
+body {
+    margin: 0;
+    padding: 0;
+    touch-action: manipulation;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.mobile-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 12px;
+    background: #2c3e50;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.mobile-btn {
+    min-height: 56px;
+    margin: 0;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 12px;
+    background: #3498db;
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-btn:active {
+    background: #2980b9;
+    transform: translateY(2px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 特殊按钮样式 */
+#fold-btn {
+    background: #e74c3c;
+}
+#fold-btn:active {
+    background: #c0392b;
+}
+
+#raise-btn {
+    background: #2ecc71;
+}
+#raise-btn:active {
+    background: #27ae60;
+}
+
+/* 游戏区域样式 */
+#game-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    padding-bottom: 80px; /* 为底部控制栏留出空间 */
+    -webkit-overflow-scrolling: touch; /* 平滑滚动 */
+    overscroll-behavior: contain; /* 防止滚动传播 */
+    touch-action: pan-y; /* 优化触摸滚动 */
+}
+
+/* 横屏优化 */
+@media (orientation: landscape) {
+    .mobile-controls {
+        grid-template-columns: repeat(4, 1fr);
+        padding: 8px 16px;
+        position: relative;
+        bottom: auto;
+        top: 0;
+    }
+
+    #game-area {
+        padding-top: 70px;
+        padding-bottom: 16px;
+    }
+
+    /* 横屏按钮样式 */
+    .mobile-btn {
+        min-height: 48px;
+        font-size: 14px;
+    }
+}
+
+/* 按钮反馈动画 */
+@keyframes buttonPress {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.mobile-btn:active {
+    animation: buttonPress 0.2s ease;
+}
+
+/* 卡片优化 */
+.card {
+    transition: transform 0.2s ease;
+    backface-visibility: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* 性能优化 */
+* {
+    -webkit-touch-callout: none; /* 禁用长按菜单 */
+    -webkit-user-select: none; /* 禁用文本选择 */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* 禁用双击缩放 */
+html {
+    touch-action: manipulation;
+}
+
+/* 响应式调整 */
+@media (max-width: 360px) {
+    .mobile-btn {
+        min-width: 70px;
+        font-size: 14px;
+    }
+}

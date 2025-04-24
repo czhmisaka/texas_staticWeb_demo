@@ -825,3 +825,6 @@ class TexasHoldemGame {
 }
 
 export default TexasHoldemGame;
+
+// 导出GameManager实例
+export const GameManager = new TexasHoldemGame();
